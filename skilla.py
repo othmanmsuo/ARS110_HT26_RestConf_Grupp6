@@ -134,55 +134,30 @@ def konfigurera_serial(
     ip_adress,
     mask
 ):
-    path = "Cisco-IOS-XE-native:native/interface"
+    interface_url = interface_nummer.replace("/", "%2F")
+
+    path = (
+        "Cisco-IOS-XE-native:native/interface/"
+        f"Serial={interface_url}"
+    )
 
     data = {
-        "Cisco-IOS-XE-native:interface": {
-            "Serial": [
-                {
-                    "name": interface_nummer,
-                    "ip": {
-                        "address": {
-                            "primary": {
-                                "address": ip_adress,
-                                "mask": mask
-                            }
-                        }
+        "Cisco-IOS-XE-native:Serial": {
+            "name": interface_nummer,
+            "ip": {
+                "address": {
+                    "primary": {
+                        "address": ip_adress,
+                        "mask": mask
                     }
                 }
-            ]
+            }
         }
     }
 
     print(f"Konfigurerar {enhet} Serial{interface_nummer}...")
-    patch_data(enhet, path, data)
+    put_data(enhet, path, data)
 
-    # no shutdown
-    ip = enheter[enhet]
-    interface_url = interface_nummer.replace("/", "%2F")
-
-    delete_url = (
-        f"https://{ip}/restconf/data/"
-        "Cisco-IOS-XE-native:native/interface/"
-        f"Serial={interface_url}/shutdown"
-    )
-
-    try:
-        svar = requests.delete(
-            delete_url,
-            auth=(username, password),
-            headers=headers,
-            verify=False,
-            timeout=10
-        )
-
-        if svar.status_code in [200, 204, 404]:
-            print(f"[OK] {enhet}: Serial{interface_nummer} aktiverat")
-        else:
-            print(f"[FEL] {enhet}: kunde inte aktivera Serial, HTTP {svar.status_code}")
-
-    except requests.exceptions.RequestException as error:
-        print(f"[FEL] {enhet}: {error}")
 
 # ==================================================
 # LOOPBACK INTERFACE
