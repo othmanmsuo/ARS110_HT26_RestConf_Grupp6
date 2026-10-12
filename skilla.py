@@ -372,7 +372,7 @@ print("----- ISP -----")
 konfigurera_hostname("ISP", "ISP")
 konfigurera_interface("ISP", "GigabitEthernet0/0/0", "10.11.12.2", "255.255.255.0")
 konfigurera_serial("ISP", "0/1/0", "172.16.16.2", "255.255.255.0")
-konfigurera_eigrp_166(
+konfigurera_eigrp(
     "ISP",
     100,
     [
