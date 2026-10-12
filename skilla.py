@@ -134,55 +134,30 @@ def konfigurera_serial(
     ip_adress,
     mask
 ):
-    path = "Cisco-IOS-XE-native:native/interface"
+    interface_url = interface_nummer.replace("/", "%2F")
+
+    path = (
+        "Cisco-IOS-XE-native:native/interface/"
+        f"Serial={interface_url}"
+    )
 
     data = {
-        "Cisco-IOS-XE-native:interface": {
-            "Serial": [
-                {
-                    "name": interface_nummer,
-                    "ip": {
-                        "address": {
-                            "primary": {
-                                "address": ip_adress,
-                                "mask": mask
-                            }
-                        }
+        "Cisco-IOS-XE-native:Serial": {
+            "name": interface_nummer,
+            "ip": {
+                "address": {
+                    "primary": {
+                        "address": ip_adress,
+                        "mask": mask
                     }
                 }
-            ]
+            }
         }
     }
 
     print(f"Konfigurerar {enhet} Serial{interface_nummer}...")
-    patch_data(enhet, path, data)
+    put_data(enhet, path, data)
 
-    # no shutdown
-    ip = enheter[enhet]
-    interface_url = interface_nummer.replace("/", "%2F")
-
-    delete_url = (
-        f"https://{ip}/restconf/data/"
-        "Cisco-IOS-XE-native:native/interface/"
-        f"Serial={interface_url}/shutdown"
-    )
-
-    try:
-        svar = requests.delete(
-            delete_url,
-            auth=(username, password),
-            headers=headers,
-            verify=False,
-            timeout=10
-        )
-
-        if svar.status_code in [200, 204, 404]:
-            print(f"[OK] {enhet}: Serial{interface_nummer} aktiverat")
-        else:
-            print(f"[FEL] {enhet}: kunde inte aktivera Serial, HTTP {svar.status_code}")
-
-    except requests.exceptions.RequestException as error:
-        print(f"[FEL] {enhet}: {error}")
 
 # ==================================================
 # LOOPBACK INTERFACE
@@ -229,7 +204,8 @@ def konfigurera_eigrp(
     enhet,
     as_nummer,
     networks,
-    passive=None
+    passive=None,
+    redistribute_static=False
 ):
     path = "Cisco-IOS-XE-native:native/router"
 
@@ -251,6 +227,10 @@ def konfigurera_eigrp(
     if passive is not None:
         eigrp["passive-interface"] = {
             "interface": passive
+        }
+    if redistribute_static is not False:
+        eigrp["redistribute"] = {
+             "static": {}
         }
 
     data = {
@@ -378,7 +358,7 @@ konfigurera_interface("Hemma", "GigabitEthernet0/0/0", "10.10.10.1", "255.255.25
 konfigurera_serial("Hemma", "0/1/0", "172.16.16.1", "255.255.255.0")
 konfigurera_eigrp(
     "Hemma",
-    100,
+   100,
     [
         ("10.10.10.0", "0.0.0.255"),
         ("172.16.16.0", "0.0.0.255")
@@ -392,7 +372,7 @@ print("----- ISP -----")
 konfigurera_hostname("ISP", "ISP")
 konfigurera_interface("ISP", "GigabitEthernet0/0/0", "10.11.12.2", "255.255.255.0")
 konfigurera_serial("ISP", "0/1/0", "172.16.16.2", "255.255.255.0")
-konfigurera_eigrp_166(
+konfigurera_eigrp(
     "ISP",
     100,
     [
@@ -407,13 +387,14 @@ print("----- INTERNET -----")
 konfigurera_hostname("Internet", "Internet")
 konfigurera_interface("Internet", "GigabitEthernet0/0/0", "10.11.12.3", "255.255.255.0")
 konfigurera_loopback("Internet", 0, "10.11.33.33", "255.255.255.0")
-konfigurera_eigrp_166(
+konfigurera_eigrp(
     "Internet",
     100,
     [
         ("10.11.12.0", "0.0.0.255"),
         ("10.11.33.33", "0.0.0.0")
-    ]
+    ],
+    redistribute_static=True
 )
 konfigurera_static_route("Internet", "0.0.0.0", "0.0.0.0", "Loopback0")
 
