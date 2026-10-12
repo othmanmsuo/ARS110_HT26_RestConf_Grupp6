@@ -204,7 +204,8 @@ def konfigurera_eigrp(
     enhet,
     as_nummer,
     networks,
-    passive=None
+    passive=None,
+    redistribute_static=False
 ):
     path = "Cisco-IOS-XE-native:native/router"
 
@@ -226,6 +227,10 @@ def konfigurera_eigrp(
     if passive is not None:
         eigrp["passive-interface"] = {
             "interface": passive
+        }
+    if redistribute_static is not False:
+        eigrp["redistribute"] = {
+             "static": {}
         }
 
     data = {
@@ -353,7 +358,7 @@ konfigurera_interface("Hemma", "GigabitEthernet0/0/0", "10.10.10.1", "255.255.25
 konfigurera_serial("Hemma", "0/1/0", "172.16.16.1", "255.255.255.0")
 konfigurera_eigrp(
     "Hemma",
-    100,
+   100,
     [
         ("10.10.10.0", "0.0.0.255"),
         ("172.16.16.0", "0.0.0.255")
@@ -382,13 +387,14 @@ print("----- INTERNET -----")
 konfigurera_hostname("Internet", "Internet")
 konfigurera_interface("Internet", "GigabitEthernet0/0/0", "10.11.12.3", "255.255.255.0")
 konfigurera_loopback("Internet", 0, "10.11.33.33", "255.255.255.0")
-konfigurera_eigrp_166(
+konfigurera_eigrp(
     "Internet",
     100,
     [
         ("10.11.12.0", "0.0.0.255"),
         ("10.11.33.33", "0.0.0.0")
-    ]
+    ],
+    redistribute_static=True
 )
 konfigurera_static_route("Internet", "0.0.0.0", "0.0.0.0", "Loopback0")
 
