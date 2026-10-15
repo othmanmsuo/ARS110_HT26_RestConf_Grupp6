@@ -5,9 +5,7 @@ urllib3.disable_warnings(
     urllib3.exceptions.InsecureRequestWarning
 )
 
-# ==================================================
 # INLOGGNING OCH ENHETER
-# ==================================================
 
 username = "admin"
 password = "cisco"
@@ -25,9 +23,8 @@ headers = {
 antal_fel = 0
 
 
-# ==================================================
 # GET
-# ==================================================
+
 
 def get_data(enhet, path):
 
@@ -65,9 +62,8 @@ def get_data(enhet, path):
         return None
 
 
-# ==================================================
 # HOSTNAME
-# ==================================================
+
 def kontrollera_hostname(enhet, ratt_hostname):
 
     global antal_fel
@@ -95,15 +91,14 @@ def kontrollera_hostname(enhet, ratt_hostname):
 
         print(
             f"[FEL] {enhet} hostname är "
-            f"{hostname}, ska vara {ratt_hostname}"
+            f"""{hostname}, ska vara "{ratt_hostname}" """
         )
 
         antal_fel += 1
         
 
-# ==================================================
 # INTERFACE
-# ==================================================
+
 
 def kontrollera_interface(
     enhet,
@@ -173,9 +168,7 @@ def kontrollera_interface(
     antal_fel += 1
 
 
-# ==================================================
 # EIGRP
-# ==================================================
 
 def kontrollera_eigrp(
     enhet,
@@ -273,9 +266,9 @@ def kontrollera_eigrp(
             antal_fel += 1
 
 
-# ==================================================
-# FIB / ROUTING
-# ==================================================
+
+# ROUTINGTABELL
+
 
 def kontrollera_route(
     enhet,
@@ -388,9 +381,7 @@ def kontrollera_route(
     antal_fel += 1
 
 
-# ==================================================
 # STATIC ROUTE
-# ==================================================
 
 def kontrollera_static_route(
     enhet,
@@ -474,22 +465,18 @@ def kontrollera_static_route(
     antal_fel += 1
 
 
-# ==================================================
+
 # START
-# ==================================================
+
 
 print()
-print("======================================")
 print(" ROBERT - RESTCONF RÄTTARE")
-print("======================================")
 
 
-# ==================================================
 # HEMMA
-# ==================================================
 
 print()
-print("----- HEMMA -----")
+print("- HEMMA -")
 
 kontrollera_hostname(
     "Hemma",
@@ -523,12 +510,10 @@ kontrollera_route(
 )
 
 
-# ==================================================
 # ISP
-# ==================================================
 
 print()
-print("----- ISP -----")
+print("- ISP -")
 
 kontrollera_hostname(
     "ISP",
@@ -563,12 +548,10 @@ kontrollera_route(
 )
 
 
-# ==================================================
 # INTERNET
-# ==================================================
 
 print()
-print("----- INTERNET -----")
+print("- INTERNET -")
 
 kontrollera_hostname(
     "Internet",
@@ -609,9 +592,6 @@ kontrollera_route(
 )
 
 
-# VIKTIGT:
-# Default route kontrolleras INTE längre via FIB.
-# Vi kontrollerar den faktiska static-route-konfigurationen.
 
 kontrollera_static_route(
     "Internet",
@@ -621,13 +601,9 @@ kontrollera_static_route(
 )
 
 
-
-# ==================================================
 # RESULTAT
-# ==================================================
 
 print()
-print("======================================")
 
 if antal_fel == 0:
 
@@ -638,4 +614,3 @@ else:
     print("RESULTAT: UNDERKÄND")
     print(f"Antal fel: {antal_fel}")
 
-print("======================================")
