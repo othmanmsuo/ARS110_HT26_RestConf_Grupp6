@@ -5,9 +5,9 @@ urllib3.disable_warnings(
     urllib3.exceptions.InsecureRequestWarning
 )
 
-# ==================================================
-# INLOGGNING OCH ENHETER
-# ==================================================
+
+# INLOGGNING + ENHETERNAS IP
+
 
 username = "admin"
 password = "cisco"
@@ -23,9 +23,7 @@ headers = {
     "Content-Type": "application/yang-data+json"
 }
 
-# ==================================================
 # RESTCONF HJÄLPFUNKTIONER
-# ==================================================
 
 def patch_data(enhet, path, data):
     ip = enheter[enhet]
@@ -79,9 +77,7 @@ def put_data(enhet, path, data):
         print(f"[FEL] Kunde inte ansluta till {enhet}: {error}")
         return False
 
-# ==================================================
 # HOSTNAME
-# ==================================================
 
 def konfigurera_hostname(enhet, hostname):
     path = "Cisco-IOS-XE-native:native/hostname"
@@ -89,12 +85,11 @@ def konfigurera_hostname(enhet, hostname):
         "Cisco-IOS-XE-native:hostname": hostname
     }
 
-    print(f"Konfigurerar hostname {hostname}...")
+    print(f"Konfigurerar hostname: [{hostname}]...")
     patch_data(enhet, path, data)
 
-# ==================================================
-# INTERFACE (GIGABIT & SERIAL FÖR 16.6)
-# ==================================================
+
+# INTERFACE GIGABIT
 
 def konfigurera_interface(
     enhet,
@@ -120,13 +115,12 @@ def konfigurera_interface(
         }
     }
 
-    print(f"Konfigurerar {enhet} {interface}...")
+    print(f"Konfigurerar {enhet} {interface} med IP {ip_adress}")
     # Ändrad tillbaka till patch_data så vi slipper "type is not configured"-felet
     patch_data(enhet, path, data)
 
-# ==================================================
-# SERIAL INTERFACE (NATIVE FÖR HEMMA)
-# ==================================================
+
+# SERIAL INTERFACE
 
 def konfigurera_serial(
     enhet,
@@ -155,13 +149,11 @@ def konfigurera_serial(
         }
     }
 
-    print(f"Konfigurerar {enhet} Serial{interface_nummer}...")
+    print(f"Konfigurerar {enhet} Serial{interface_nummer} med IP {ip_adress}")
     put_data(enhet, path, data)
 
 
-# ==================================================
 # LOOPBACK INTERFACE
-# ==================================================
 
 def konfigurera_loopback(
     enhet,
@@ -189,16 +181,10 @@ def konfigurera_loopback(
         }
     }
 
-    print(f"Konfigurerar {enhet} Loopback{loopback_nummer}...")
+    print(f"Konfigurerar {enhet} Loopback{loopback_nummer} med IP {ip_adress}")
     patch_data(enhet, path, data)
 
-# ==================================================
 # EIGRP
-# ==================================================
-
-# --------------------------------------------------
-# HEMMA - nyare IOS XE / YANG-struktur
-# --------------------------------------------------
 
 def konfigurera_eigrp(
     enhet,
@@ -249,9 +235,7 @@ def konfigurera_eigrp(
     put_data(enhet, path, data)
 
 
-# --------------------------------------------------
-# ISP + INTERNET - IOS XE 16.6 / äldre YANG-struktur
-# --------------------------------------------------
+#EIGRP Äldre version IOS
 
 def konfigurera_eigrp_166(
     enhet,
@@ -287,11 +271,7 @@ def konfigurera_eigrp_166(
     patch_data(enhet, path, data)
 
 
-
-
-# ==================================================
 # STATIC ROUTE
-# ==================================================
 
 def konfigurera_static_route(
     enhet,
@@ -341,18 +321,16 @@ def konfigurera_static_route(
     except requests.exceptions.RequestException as error:
         print(f"[FEL] Static route på {enhet}: {error}")
 
-# ==================================================
+
 # START
-# ==================================================
+
 
 print()
-print("======================================")
 print("        SKILLA - RESTCONF")
-print("======================================")
 
 # HEMMA
 print()
-print("----- HEMMA -----")
+print("- HEMMA -")
 konfigurera_hostname("Hemma", "Hemma")
 konfigurera_interface("Hemma", "GigabitEthernet0/0/0", "10.10.10.1", "255.255.255.0")
 konfigurera_serial("Hemma", "0/1/0", "172.16.16.1", "255.255.255.0")
@@ -368,7 +346,7 @@ konfigurera_eigrp(
 
 # ISP
 print()
-print("----- ISP -----")
+print("- ISP -")
 konfigurera_hostname("ISP", "ISP")
 konfigurera_interface("ISP", "GigabitEthernet0/0/0", "10.11.12.2", "255.255.255.0")
 konfigurera_serial("ISP", "0/1/0", "172.16.16.2", "255.255.255.0")
@@ -383,7 +361,7 @@ konfigurera_eigrp(
 
 # INTERNET
 print()
-print("----- INTERNET -----")
+print("- INTERNET -")
 konfigurera_hostname("Internet", "Internet")
 konfigurera_interface("Internet", "GigabitEthernet0/0/0", "10.11.12.3", "255.255.255.0")
 konfigurera_loopback("Internet", 0, "10.11.33.33", "255.255.255.0")
@@ -399,6 +377,4 @@ konfigurera_eigrp(
 konfigurera_static_route("Internet", "0.0.0.0", "0.0.0.0", "Loopback0")
 
 print()
-print("======================================")
 print("SKILLA.PY ÄR KLAR")
-print("======================================")
