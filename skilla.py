@@ -23,7 +23,7 @@ headers = {
     "Content-Type": "application/yang-data+json"
 }
 
-# RESTCONF HJÄLPFUNKTIONER
+# PUT/PATCH (återanvänds i varje funktion)
 
 def patch_data(enhet, path, data):
     ip = enheter[enhet]
@@ -89,7 +89,7 @@ def konfigurera_hostname(enhet, hostname):
     patch_data(enhet, path, data)
 
 
-# INTERFACE GIGABIT
+# GIGABIT INTERFACE
 
 def konfigurera_interface(
     enhet,
@@ -116,7 +116,6 @@ def konfigurera_interface(
     }
 
     print(f"Konfigurerar {enhet} {interface} med IP {ip_adress}")
-    # Ändrad tillbaka till patch_data så vi slipper "type is not configured"-felet
     patch_data(enhet, path, data)
 
 
