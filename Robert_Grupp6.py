@@ -7,8 +7,10 @@ urllib3.disable_warnings(
 
 # INLOGGNING OCH ENHETER
 
-username = "admin"
-password = "cisco"
+from getpass import getpass
+
+username = input("Username: ")
+password = getpass("Password: ")
 
 enheter = {
     "Hemma": "100.100.100.1",
