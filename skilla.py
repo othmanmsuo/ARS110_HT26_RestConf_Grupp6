@@ -8,9 +8,10 @@ urllib3.disable_warnings(
 
 # INLOGGNING + ENHETERNAS IP
 
+from getpass import getpass
 
-username = "admin"
-password = "cisco"
+username = input("Username: ")
+password = getpass("Password: ")
 
 enheter = {
     "Hemma": "100.100.100.1",
